@@ -55,6 +55,7 @@ namespace Pleer
                         playlist.Add(file); 
                     }
                 }
+                PlayAudio_OnClick(sender, e);
             }
         }
 
