@@ -24,6 +24,7 @@ namespace Pleer
             playList.ItemsSource = playlist;
 
             mediaPlayer.MediaOpened += MediaPlayer_MediaOpened;
+            mediaPlayer.MediaEnded += MediaPlayer_MediaEnded;
 
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
@@ -151,6 +152,16 @@ namespace Pleer
                 mediaPlayer.Play();
             }
 
+        }
+
+        private void MediaPlayer_MediaEnded(object sender, EventArgs e)
+        {
+            int currentIndex = playlist.IndexOf(mediaPlayer.Source.LocalPath);
+            if (currentIndex < playlist.Count - 1)
+            {
+                mediaPlayer.Open(new Uri(playlist[currentIndex + 1]));
+                mediaPlayer.Play();
+            }
         }
 
 
