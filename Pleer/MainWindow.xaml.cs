@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -8,15 +8,19 @@ using System.Windows.Controls;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Input;
+using System.Diagnostics;
 
 namespace Pleer
 {
     public partial class MainWindow : Window
     {
+        public List<string> listeningHistory = new List<string>();
+        
         private MediaPlayer mediaPlayer = new MediaPlayer();
         private ObservableCollection<string> playlist = new ObservableCollection<string>();
         private Random random = new Random();
         private DispatcherTimer timer = new DispatcherTimer();
+        
 
         public MainWindow()
         {
@@ -28,7 +32,17 @@ namespace Pleer
 
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
         }
+
+
+        private void ListeningHistoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            ListeningHistoryWindow historyWindow = new ListeningHistoryWindow(listeningHistory); 
+            historyWindow.ShowDialog();
+        }
+
+
 
         private void MediaPlayer_MediaOpened(object sender, EventArgs e)
         {
@@ -53,16 +67,20 @@ namespace Pleer
                 {
                     if (file.EndsWith(".mp3") || file.EndsWith(".wav") || file.EndsWith(".m4a"))
                     {
+                        
                         playlist.Add(file); 
                     }
                 }
-                PlayAudio_OnClick(sender, e);
-            }
-        }
 
+                PlayAudio_OnClick(sender, e);
+
+            }
+
+        }
 
         private void PlayAudio_OnClick(object sender, RoutedEventArgs e)
         {
+            
             if (mediaPlayer.Source == null)
             {
                 if (playlist.Count > 0)
@@ -94,9 +112,6 @@ namespace Pleer
             }
             
         }
-
-        
-
 
         private void NextTrack_OnClick(object sender, RoutedEventArgs e)
         {
@@ -139,6 +154,7 @@ namespace Pleer
             mediaPlayer.Play();
         }
 
+
         private void SliderVolume_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             mediaPlayer.Volume = SliderVolume.Value / 100;
@@ -156,12 +172,20 @@ namespace Pleer
 
         private void MediaPlayer_MediaEnded(object sender, EventArgs e)
         {
+            if (mediaPlayer.Source != null)
+            {              
+                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(mediaPlayer.Source.LocalPath);                
+                listeningHistory.Add(mediaPlayer.Source.LocalPath);
+            }
+
             int currentIndex = playlist.IndexOf(mediaPlayer.Source.LocalPath);
             if (currentIndex < playlist.Count - 1)
             {
                 mediaPlayer.Open(new Uri(playlist[currentIndex + 1]));
                 mediaPlayer.Play();
             }
+
+           
         }
 
 
