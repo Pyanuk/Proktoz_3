@@ -46,6 +46,7 @@ namespace Pleer
 
         private void MediaPlayer_MediaOpened(object sender, EventArgs e)
         {
+            AddCurrentTrackToHistory();
             SliderTrack.Maximum = mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
         }
 
@@ -188,6 +189,27 @@ namespace Pleer
            
         }
 
+
+        private void MediaPlayer_PositionChanged(object sender, EventArgs e)
+        {
+            
+            TimeSpan trackDuration = mediaPlayer.NaturalDuration.TimeSpan;
+            TimeSpan currentPosition = mediaPlayer.Position;
+
+            if (trackDuration - currentPosition <= TimeSpan.FromSeconds(0))
+            {
+                AddCurrentTrackToHistory();
+            }
+        }
+
+        private void AddCurrentTrackToHistory()
+        {
+            if (mediaPlayer.Source != null)
+            {
+                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(mediaPlayer.Source.LocalPath);
+                listeningHistory.Add(mediaPlayer.Source.LocalPath);
+            }
+        }
 
     }
 }
